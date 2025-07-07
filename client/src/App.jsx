@@ -1,20 +1,21 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import FileUploader from "./components/FileUploader";
 import Dashboard from "./pages/Dashboard";
-import Navbar from "./components/Navbar";
-const App = () => {
+
+function App() {
   return (
-    <Router>
+    <BrowserRouter>
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/upload" element={<FileUploader />} />
         <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
-};
+}
 
 export default App;
+// This is the main entry point of the React application.
