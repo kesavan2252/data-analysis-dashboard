@@ -5,6 +5,7 @@ import jsPDF from "jspdf";
 import SummaryCards from "../components/SummaryCards";
 import ChartViewer from "../components/ChartViewer";
 import DataTable from "../components/DataTable";
+import TopBottomStats from "../components/TopBottomStats";
 
 const Dashboard = () => {
   const location = useLocation();
@@ -100,7 +101,8 @@ const Dashboard = () => {
       <div id="dashboard-content">
         <SummaryCards data={data} />
         <ChartViewer data={data} />
-
+        <TopBottomStats data={data} />
+  
         {/* Data Table */}
         <div className="mt-10 overflow-auto border rounded-lg p-4 bg-white">
           <h3 className="text-lg font-semibold mb-3 text-blue-700">
