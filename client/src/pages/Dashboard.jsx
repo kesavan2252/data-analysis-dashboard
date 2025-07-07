@@ -7,6 +7,7 @@ import ChartViewer from "../components/ChartViewer";
 import DataTable from "../components/DataTable";
 import TopBottomStats from "../components/TopBottomStats";
 import DynamicChart from "../components/DynamicChart";
+import CorrelationHeatmap from "../components/CorrelationHeatmap";
 
 const Dashboard = () => {
   const location = useLocation();
@@ -104,6 +105,9 @@ const Dashboard = () => {
         {/* <ChartViewer data={data} /> */}
         <TopBottomStats data={data} />
         <DynamicChart data={data} />
+        
+        {/* Correlation Heatmap */}
+        <CorrelationHeatmap data={data} />
 
 
         {/* Data Table */}
