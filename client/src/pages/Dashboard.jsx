@@ -3,11 +3,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import SummaryCards from "../components/SummaryCards";
-import ChartViewer from "../components/ChartViewer";
 import DataTable from "../components/DataTable";
 import TopBottomStats from "../components/TopBottomStats";
 import DynamicChart from "../components/DynamicChart";
 import CorrelationHeatmap from "../components/CorrelationHeatmap";
+import BoxPlotViewer from "../components/BoxPlotViewer";
+
 
 const Dashboard = () => {
   const location = useLocation();
@@ -108,7 +109,7 @@ const Dashboard = () => {
         
         {/* Correlation Heatmap */}
         <CorrelationHeatmap data={data} />
-
+        <BoxPlotViewer data={data} />
 
         {/* Data Table */}
         <div className="mt-10 overflow-auto border rounded-lg p-4 bg-white">

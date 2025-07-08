@@ -43,7 +43,7 @@ const CorrelationHeatmap = ({ data }) => {
 
   return (
     <div className="mt-10 bg-white border p-6 rounded-lg shadow-md">
-      <h2 className="text-lg font-bold mb-4 text-blue-700">📉 Correlation Matrix</h2>
+      <h2 className="text-lg font-bold mb-4 text-blue-700"> Correlation Matrix</h2>
 
       <Plot
         data={[
