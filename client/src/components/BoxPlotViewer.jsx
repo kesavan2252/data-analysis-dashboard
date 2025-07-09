@@ -1,111 +1,94 @@
-import React, { useState } from "react";
-import { Chart as ChartJS, registerables } from "chart.js";
-import { Chart } from "react-chartjs-2";
-import { BoxPlotController, BoxAndWhiskers } from "chartjs-chart-box-and-violin-plot";
+import React, { useEffect, useRef, useMemo } from "react";
+import { Chart, registerables } from "chart.js";
+import {
+  BoxPlotController,
+  BoxAndWiskers,
+  BoxPlotChart,
+} from "@sgratzl/chartjs-chart-boxplot";
 
-// Register all chart.js components and the box plot extension
-ChartJS.register(...registerables, BoxPlotController, BoxAndWhiskers);
+Chart.register(
+  ...registerables,
+  BoxPlotController,
+  BoxAndWiskers,
+);
 
 const BoxPlotViewer = ({ data }) => {
-  // Always define hooks at the top level
-  const numericKeys = data && data.length > 0
-    ? Object.keys(data[0]).filter((key) =>
-        data.every((row) => typeof row[key] === "number")
-      )
-    : [];
-  const [selectedKey, setSelectedKey] = useState(numericKeys[0] || "");
+  const canvasRef = useRef(null);
 
-  if (!data || data.length === 0) return null;
-
-  // Extract values
-  const values = data
-    .map((row) => Number(row[selectedKey]))
-    .filter((val) => !isNaN(val))
-    .sort((a, b) => a - b);
-
-  if (values.length < 5) {
-    return (
-      <div className="p-4 mt-6 bg-yellow-100 text-yellow-700 rounded">
-        ⚠️ Not enough data for box plot. Minimum 5 values required.
-      </div>
-    );
-  }
-
-  const getBoxPlotStats = (vals) => {
-    const q1 = vals[Math.floor(vals.length * 0.25)];
-    const q2 = vals[Math.floor(vals.length * 0.5)];
-    const q3 = vals[Math.floor(vals.length * 0.75)];
-    const iqr = q3 - q1;
-    const min = Math.max(vals[0], q1 - 1.5 * iqr);
-    const max = Math.min(vals[vals.length - 1], q3 + 1.5 * iqr);
-
-    return { min, q1, median: q2, q3, max };
+  // helper to detect numeric values (number or numeric string)
+  const isNumeric = (v) => {
+    if (typeof v === "number" && !Number.isNaN(v)) return true;
+    if (typeof v === "string") {
+      const n = Number(v);
+      return v.trim() !== "" && !Number.isNaN(n);
+    }
+    return false;
   };
 
-  const stats = getBoxPlotStats(values);
+  // compute numeric column keys once per data change
+  const numericKeys = useMemo(() => {
+    if (!Array.isArray(data) || data.length === 0) return [];
+    return Object.keys(data[0]).filter((k) => isNumeric(data[0][k]));
+  }, [data]);
 
-  const chartData = {
-    labels: [selectedKey],
-    datasets: [
-      {
-        label: `Distribution of ${selectedKey}`,
-        backgroundColor: "#36A2EB",
-        borderColor: "#0275d8",
-        borderWidth: 2,
-        outlierColor: "#FF6384",
-        itemRadius: 3,
-        data: [
-          {
-            min: stats.min,
-            q1: stats.q1,
-            median: stats.median,
-            q3: stats.q3,
-            max: stats.max,
+  useEffect(() => {
+    if (!data || data.length === 0 || numericKeys.length === 0) return;
+
+    const datasets = numericKeys.map((key) => ({
+      label: key,
+      data: [data.map((row) => row[key]).filter((v) => !isNaN(v))],
+      backgroundColor: "rgba(54, 162, 235, 0.5)",
+      borderColor: "rgba(54, 162, 235, 1)",
+      borderWidth: 1,
+      outlierColor: "#999",
+      padding: 10,
+      itemRadius: 0,
+    }));
+
+    if (canvasRef.current._chart) {
+      canvasRef.current._chart.destroy();
+    }
+
+    canvasRef.current._chart = new Chart(canvasRef.current, {
+      type: BoxPlotChart.id,
+      data: {
+        labels: numericKeys,
+        datasets,
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: "📦 Box-Plot Distribution",
           },
-        ],
+          tooltip: {
+            mode: "nearest",
+            intersect: false,
+          },
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: "Columns",
+            },
+          },
+          y: {
+            title: {
+              display: true,
+              text: "Value range",
+            },
+          },
+        },
       },
-    ],
-  };
-
-  const chartOptions = {
-    responsive: true,
-    plugins: {
-      legend: { display: false },
-      title: {
-        display: true,
-        text: `Box Plot for ${selectedKey}`,
-        font: { size: 18 },
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: false,
-      },
-    },
-  };
+    });
+  }, [data, numericKeys]);
 
   return (
     <div className="mt-10 bg-white p-6 border rounded-lg">
-      <h2 className="text-xl font-bold mb-4 text-blue-700">Box Plot Viewer</h2>
-
-      {/* Column Selection */}
-      <div className="mb-4">
-        <label className="text-sm font-medium text-gray-700 mr-2">Select Numeric Column:</label>
-        <select
-          value={selectedKey}
-          onChange={(e) => setSelectedKey(e.target.value)}
-          className="border px-3 py-1 rounded"
-        >
-          {numericKeys.map((key, idx) => (
-            <option key={idx} value={key}>{key}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* Chart */}
-      <div className="w-full max-w-xl mx-auto">
-        <Chart type="boxplot" data={chartData} options={chartOptions} />
-      </div>
+      <h3 className="text-xl font-bold mb-4 text-blue-700">Box-Plot Viewer</h3>
+      <canvas ref={canvasRef} />
     </div>
   );
 };

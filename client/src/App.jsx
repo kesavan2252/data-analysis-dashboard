@@ -3,17 +3,20 @@ import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import FileUploader from "./components/FileUploader";
 import Dashboard from "./pages/Dashboard";
+import { NotificationProvider } from "./components/NotificationProvider";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/upload" element={<FileUploader />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-      </Routes>
-    </BrowserRouter>
+    <NotificationProvider>
+      <BrowserRouter>
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/upload" element={<FileUploader />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Routes>
+      </BrowserRouter>
+    </NotificationProvider>
   );
 }
 

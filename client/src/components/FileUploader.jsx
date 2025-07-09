@@ -3,6 +3,7 @@ import { parseCSV } from "../utils/csvParser";
 import { parseExcel } from "../utils/excelParser";
 import { parsePDF } from "../utils/pdfParser";
 import { useNavigate } from "react-router-dom";
+import { useNotification } from "./NotificationProvider";
 import Loader from "./Loader";
 
 const FileUploader = () => {
@@ -12,6 +13,7 @@ const FileUploader = () => {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+  const { showNotification } = useNotification();
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -39,7 +41,7 @@ const FileUploader = () => {
 
   const handleUpload = () => {
     if (!selectedFile) {
-      alert("Please select a file.");
+      showNotification({ message: "Please select a file first.", type: "error" });
       return;
     }
 
@@ -48,17 +50,20 @@ const FileUploader = () => {
     if (fileType === "csv") {
       parseCSV(selectedFile, (data) => {
         setLoading(false);
-        navigate("/dashboard", { state: { data, fileType } });
+        showNotification({ message: "CSV file uploaded successfully!", type: "success" });
+        navigate("/dashboard", { state: { data, fileType, fileName: selectedFile.name } });
       });
     } else if (fileType === "excel") {
       parseExcel(selectedFile, (data) => {
         setLoading(false);
-        navigate("/dashboard", { state: { data, fileType } });
+        showNotification({ message: "Excel file uploaded successfully!", type: "success" });
+        navigate("/dashboard", { state: { data, fileType, fileName: selectedFile.name } });
       });
     } else if (fileType === "pdf") {
       parsePDF(selectedFile).then((data) => {
         setLoading(false);
-        navigate("/dashboard", { state: { data, fileType } });
+        showNotification({ message: "PDF file uploaded successfully!", type: "success" });
+        navigate("/dashboard", { state: { data, fileType, fileName: selectedFile.name } });
       });
     }
   };
