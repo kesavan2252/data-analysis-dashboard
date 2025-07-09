@@ -18,25 +18,19 @@ const FileUploader = () => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setSelectedFile(file);
-
     setLoading(true);
 
-    if (fileType === "csv") {
-      parseCSV(file, (data) => {
-        setPreviewData(data.slice(0, 5));
-        setLoading(false);
-      });
-    } else if (fileType === "excel") {
-      parseExcel(file, (data) => {
-        setPreviewData(data.slice(0, 5));
-        setLoading(false);
-      });
-    } else if (fileType === "pdf") {
-      parsePDF(file).then((data) => {
-        setPreviewData(data.slice(0, 5));
-        setLoading(false);
-      });
-    }
+    const parser =
+      fileType === "csv"
+        ? parseCSV
+        : fileType === "excel"
+        ? parseExcel
+        : parsePDF;
+
+    parser(file, (data) => {
+      setPreviewData(data.slice(0, 5));
+      setLoading(false);
+    });
   };
 
   const handleUpload = () => {
@@ -47,101 +41,115 @@ const FileUploader = () => {
 
     setLoading(true);
 
-    if (fileType === "csv") {
-      parseCSV(selectedFile, (data) => {
-        setLoading(false);
-        showNotification({ message: "CSV file uploaded successfully!", type: "success" });
-        navigate("/dashboard", { state: { data, fileType, fileName: selectedFile.name } });
+    const parser =
+      fileType === "csv"
+        ? parseCSV
+        : fileType === "excel"
+        ? parseExcel
+        : parsePDF;
+
+    parser(selectedFile, (data) => {
+      setLoading(false);
+      showNotification({ message: `${fileType.toUpperCase()} file uploaded successfully!`, type: "success" });
+      navigate("/dashboard", {
+        state: { data, fileType, fileName: selectedFile.name },
       });
-    } else if (fileType === "excel") {
-      parseExcel(selectedFile, (data) => {
-        setLoading(false);
-        showNotification({ message: "Excel file uploaded successfully!", type: "success" });
-        navigate("/dashboard", { state: { data, fileType, fileName: selectedFile.name } });
-      });
-    } else if (fileType === "pdf") {
-      parsePDF(selectedFile).then((data) => {
-        setLoading(false);
-        showNotification({ message: "PDF file uploaded successfully!", type: "success" });
-        navigate("/dashboard", { state: { data, fileType, fileName: selectedFile.name } });
-      });
-    }
+    });
+  };
+
+  const fileIcons = {
+    csv: "/csv.svg",
+    excel: "/excel.svg",
+    pdf: "/pdf.svg",
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
-      <h2 className="text-3xl font-bold mb-6">📂 Upload Your Data</h2>
+    <div
+      className="flex flex-col items-center justify-center min-h-screen p-6 text-center relative"
+      style={{
+        backgroundImage: "url('/assets/upload-bg.svg')",
+        backgroundSize: "cover",
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center",
+      }}
+    >
+      <div className="absolute inset-0 bg-blue-100 to bg-green- 200 bg-opacity-0 backdrop-blur-md z-0" />
 
-      {/* Select Input Type */}
-      <div className="mb-4">
-        <label className="mr-2 font-medium text-gray-700">Choose file type:</label>
-        <select
-          value={fileType}
-          onChange={(e) => {
-            setFileType(e.target.value);
-            setSelectedFile(null);
-            setPreviewData([]);
-          }}
-          className="border px-3 py-2 rounded"
+      <div className="z-10 relative max-w-3xl w-full bg-white bg-opacity-90 p-8 rounded-lg shadow-lg">
+        <h2 className="text-3xl sm:text-4xl font-extrabold mb-6 text-blue-700 flex items-center justify-center gap-3">
+          <img src={fileIcons[fileType]} alt={fileType} className="w-10 h-10" />
+          Upload Your Data
+        </h2>
+
+        {/* File type selector */}
+        <div className="mb-5">
+          <label className="mr-2 font-medium text-gray-700 text-lg">Choose file type:</label>
+          <select
+            value={fileType}
+            onChange={(e) => {
+              setFileType(e.target.value);
+              setSelectedFile(null);
+              setPreviewData([]);
+            }}
+            className="border px-3 py-2 rounded-md bg-white shadow-inner"
+          >
+            <option value="csv">CSV (.csv)</option>
+            <option value="excel">Excel (.xlsx, .xls)</option>
+            <option value="pdf">PDF (.pdf)</option>
+          </select>
+        </div>
+
+        {/* File input */}
+        <input
+          key={fileType}
+          type="file"
+          accept={
+            fileType === "csv"
+              ? ".csv"
+              : fileType === "excel"
+              ? ".xlsx, .xls"
+              : ".pdf"
+          }
+          onChange={handleFileChange}
+          className="mb-4 w-full border border-gray-300 p-3 rounded shadow-sm focus:ring-2 focus:ring-blue-500 transition"
+        />
+
+        {/* Upload Button */}
+        <button
+          onClick={handleUpload}
+          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-indigo-600 hover:to-purple-600 text-white font-semibold px-6 py-3 rounded-lg transition-all shadow-md hover:shadow-xl"
         >
-          <option value="csv">CSV (.csv)</option>
-          <option value="excel">Excel (.xlsx)</option>
-          <option value="pdf">PDF (.pdf)</option>
-        </select>
-      </div>
+          🚀 Upload & Analyze
+        </button>
 
-      {/* File Input */}
-      <input
-        key={fileType} // reset file input on change
-        type="file"
-        accept={
-          fileType === "csv"
-            ? ".csv"
-            : fileType === "excel"
-            ? ".xlsx, .xls"
-            : ".pdf"
-        }
-        onChange={handleFileChange}
-        className="mb-4 border p-2 rounded w-full max-w-md"
-      />
+        {/* Loader */}
+        {loading && <Loader />}
 
-      {/* Upload Button */}
-      <button
-        onClick={handleUpload}
-        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded"
-      >
-        Upload & Analyze
-      </button>
-
-      {/* Loader */}
-      {loading && <Loader />}
-
-      {/* Preview Table */}
-      {!loading && previewData.length > 0 && (
-        <div className="mt-6 w-full max-w-4xl overflow-auto bg-white shadow-md rounded-lg p-4">
-          <h3 className="text-lg font-bold mb-2 text-gray-700">🔍 Preview (first 5 rows)</h3>
-          <table className="w-full text-sm text-left text-gray-800 border">
-            <thead className="bg-gray-200">
-              <tr>
-                {Object.keys(previewData[0] || {}).map((col, idx) => (
-                  <th key={idx} className="px-3 py-2 border">{col}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {previewData.map((row, idx) => (
-                <tr key={idx} className="border-b">
-                  {Object.values(row).map((cell, i) => (
-                    <td key={i} className="px-3 py-2 border">
-                      {String(cell)}
-                    </td>
+        {/* Preview Data */}
+        {!loading && previewData.length > 0 && (
+          <div className="mt-8 w-full overflow-auto bg-white rounded-lg shadow-xl p-4 border border-gray-200">
+            <h3 className="text-lg font-semibold mb-2 text-gray-800">🔍 Preview (first 5 rows)</h3>
+            <table className="w-full text-sm text-left text-gray-700 border">
+              <thead className="bg-blue-100">
+                <tr>
+                  {Object.keys(previewData[0] || {}).map((col, idx) => (
+                    <th key={idx} className="px-3 py-2 border">{col}</th>
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {previewData.map((row, idx) => (
+                  <tr key={idx} className="border-b hover:bg-gray-100 transition">
+                    {Object.values(row).map((cell, i) => (
+                      <td key={i} className="px-3 py-2 border">{String(cell)}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

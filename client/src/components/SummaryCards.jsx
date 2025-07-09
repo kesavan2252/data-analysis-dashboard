@@ -14,13 +14,13 @@ const SummaryCards = ({ data }) => {
         return (
           <motion.div
             key={idx}
-            className="bg-white shadow rounded p-4 border"
+            className="bg-blue-200 shadow rounded p-4 border"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: idx * 0.1 }}
           >
             <h3 className="text-lg font-semibold mb-2 text-blue-600">{key}</h3>
-            <ul className="text-sm text-gray-700 space-y-1">
+            <ul className="text-sm text-black-700 space-y-1">
               <li>Mean: {stats.mean}</li>
               <li>Median: {stats.median}</li>
               <li>Mode: {stats.mode}</li>

@@ -85,12 +85,7 @@ const Dashboard = () => {
       {/* Header Section */}
       <div className="flex flex-wrap justify-between items-center mb-6">
         {/* Back Button */}
-        <button
-          onClick={() => navigate(-1)}
-          className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 text-lg flex items-center"
-        >
-          ← Back
-        </button>
+        
 
         {/* Dashboard Title and File Info */}
         <div className="flex items-center space-x-4">
@@ -113,7 +108,7 @@ const Dashboard = () => {
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none"
             onClick={() => setDownloadOpen((prev) => !prev)}
           >
-            ⬇ Data Export
+            ⬇ File conversion
           </button>
           {downloadOpen && (
             <div
