@@ -4,6 +4,10 @@ import Home from "./pages/Home";
 import FileUploader from "./components/FileUploader";
 import Dashboard from "./pages/Dashboard";
 import { NotificationProvider } from "./components/NotificationProvider";
+import HistoryPage from "./components/HistoryPage";
+
+// Inside <Routes>
+
 
 function App() {
   return (
@@ -14,6 +18,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/upload" element={<FileUploader />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/history" element={<HistoryPage />} />
         </Routes>
       </BrowserRouter>
     </NotificationProvider>

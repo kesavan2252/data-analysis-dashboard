@@ -39,22 +39,47 @@ const FileUploader = () => {
       return;
     }
 
-    setLoading(true);
+setLoading(true);
 
-    const parser =
-      fileType === "csv"
-        ? parseCSV
-        : fileType === "excel"
-        ? parseExcel
-        : parsePDF;
+const parser =
+  fileType === "csv"
+    ? parseCSV
+    : fileType === "excel"
+    ? parseExcel
+    : parsePDF;
 
-    parser(selectedFile, (data) => {
-      setLoading(false);
-      showNotification({ message: `${fileType.toUpperCase()} file uploaded successfully!`, type: "success" });
-      navigate("/dashboard", {
-        state: { data, fileType, fileName: selectedFile.name },
-      });
-    });
+parser(selectedFile, (data) => {
+  const storedHistory = JSON.parse(localStorage.getItem("uploadHistory")) || [];
+
+const now = Date.now();
+const newRecord = {
+  id: now,
+  data,
+  fileType,
+  fileName: selectedFile.name,
+  timestamp: new Date(now).toISOString(),
+};
+
+// Get last record
+const lastRecord = storedHistory[0];
+
+// Only store if not a duplicate within 1 minute
+if (
+  !lastRecord ||
+  lastRecord.fileName !== newRecord.fileName ||
+  now - new Date(lastRecord.timestamp).getTime() > 60000
+) {
+  storedHistory.unshift(newRecord);
+  localStorage.setItem("uploadHistory", JSON.stringify(storedHistory));
+}
+
+
+  setLoading(false);
+  showNotification({ message: `${fileType.toUpperCase()} file uploaded successfully!`, type: "success" });
+  navigate("/dashboard", {
+    state: { data, fileType, fileName: selectedFile.name },
+  });
+});
   };
 
   const fileIcons = {
