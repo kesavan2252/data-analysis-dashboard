@@ -23,13 +23,13 @@ const Navbar = () => {
 
   const isCurrent = (path) => location.pathname === path && !noDataOnDashboard;
 
-  // const handleHistoryClick = () => {
-  //   const stored = localStorage.getItem("lastUploadedFile");
-  //   if (stored) {
-  //     const parsed = JSON.parse(stored);
-  //     navigate("/dashboard", { state: parsed });
-  //   }
-  // };
+  const handleHistoryClick = () => {
+    const stored = localStorage.getItem("lastUploadedFile");
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      navigate("/dashboard", { state: parsed });
+    }
+  };
 
   return (
     <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm shadow-lg px-6 py-4 flex justify-between items-center border-b border-blue-100">
